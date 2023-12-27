@@ -20,13 +20,12 @@ const Homepage = () => {
 
     useEffect(() => {
         if (tasks && tasks.tasks) {
-            const completed = tasks.tasks.filter((task) => task.completed);
-            const incomplete = tasks.tasks.filter((task) => !task.completed);
 
-            const low = incomplete.filter((task) => task.priority === 'low');
-            const medium = incomplete.filter((task) => task.priority === 'medium');
-            const high = incomplete.filter((task) => task.priority === 'high');
-            const other = incomplete.filter((task) => !['low', 'medium', 'high'].includes(task.priority));
+            const completed = tasks.tasks.filter((task) => task.priority === 'complete');
+            const low = tasks.tasks.filter((task) => task.priority === 'low');
+            const medium = tasks.tasks.filter((task) => task.priority === 'medium');
+            const high = tasks.tasks.filter((task) => task.priority === 'high');
+            const other = tasks.tasks.filter((task) => !['low', 'medium', 'high', 'complete'].includes(task.priority));
 
             setCompletedTasks(completed);
             setLowPriority(low);
@@ -38,18 +37,34 @@ const Homepage = () => {
 
 
     const droppedToBacklog = async (id) => {
-        alert("droppedToBacklot")
-        // const res = await axiosInstance.patch(`/updateTaskStatus/${id}`, { status: "todo" });
-        // if (res.status === 200 ) {
-        //     refetch();
-        // }
+        const res = await axiosInstance.patch(`/tasks/${id}/`, { priority: 'backlog' });
+        if (res.status === 200) {
+            refetch();
+        }
     };
     const droppedToLP = async (id) => {
-        alert("droppedToBacklot" + "  id:" + id)
-        // const res = await axiosInstance.patch(`/updateTaskStatus/${id}`, { status: "todo" });
-        // if (res.status === 200 ) {
-        //     refetch();
-        // }
+        const res = await axiosInstance.patch(`/tasks/${id}/`, { priority: 'low' });
+        if (res.status === 200) {
+            refetch();
+        }
+    };
+    const droppedToMP = async (id) => {
+        const res = await axiosInstance.patch(`/tasks/${id}/`, { priority: 'medium' });
+        if (res.status === 200) {
+            refetch();
+        }
+    };
+    const droppedToHP = async (id) => {
+        const res = await axiosInstance.patch(`/tasks/${id}/`, { priority: 'high' });
+        if (res.status === 200) {
+            refetch();
+        }
+    };
+    const droppedToCompleted = async (id) => {
+        const res = await axiosInstance.patch(`/tasks/${id}/`, { priority: 'complete' });
+        if (res.status === 200) {
+            refetch();
+        }
     };
 
     const [{ isOver: isOverBacklog }, dropBacklog] = useDrop(() => ({
@@ -66,6 +81,27 @@ const Homepage = () => {
             isOver: !!monitor.isOver(),
         }),
     }));
+    const [{ isOver: isOverMP }, dropMP] = useDrop(() => ({
+        accept: "task",
+        drop: (item) => droppedToMP(item.id),
+        collect: (monitor) => ({
+            isOver: !!monitor.isOver(),
+        }),
+    }));
+    const [{ isOver: isOverHP }, dropHP] = useDrop(() => ({
+        accept: "task",
+        drop: (item) => droppedToHP(item.id),
+        collect: (monitor) => ({
+            isOver: !!monitor.isOver(),
+        }),
+    }));
+    const [{ isOver: isOverCompleted }, dropCompleted] = useDrop(() => ({
+        accept: "task",
+        drop: (item) => droppedToCompleted(item.id),
+        collect: (monitor) => ({
+            isOver: !!monitor.isOver(),
+        }),
+    }));
 
 
 
@@ -77,26 +113,25 @@ const Homepage = () => {
     return (
         <div className="bg-[#F3F4F6] min-h-screen">
             <h1 className="text-2xl pl-6 pt-4">Total Tasks: {tasks.count}</h1>
-            <div className="grid grid-cols-5">
+            {/* <div className="grid  md:grid-cols-3 lg:grid-cols-5"> */}
+            <div className="flex flex-wrap justify-center items-start">
                 <div ref={dropBacklog}>
                     <Column tasks={otherPriority} title={"Backlog"} priority={"other"} setTasks={setOtherPriority} refetch={refetch} />
                 </div>
                 <div ref={dropLP}>
                     <Column tasks={lowPriority} title={"Low Priority"} setTasks={setLowPriority} priority={"low"} refetch={refetch} />
                 </div>
-                <div>
+                <div ref={dropMP}>
                     <Column tasks={mediumPriority} title={"Medium Priority"} setTasks={setMediumPriority} priority={"medium"} refetch={refetch} />
                 </div>
-                <div>
+                <div ref={dropHP}>
                     <Column tasks={highPriority} title={"High Priority"} setTasks={setHighPriority} priority={"high"} refetch={refetch} />
                 </div>
 
-                <div>
-                    <div className="bg-[#082F49] mt-8 mx-4 rounded-lg min-h-[720px]">
-                        <h1 className="text-white text-2xl pl-6 pt-4">Done ({completedTasks.length})</h1>
-                        {completedTasks?.map((task) => <TaskCard key={task.id} task={task} refetch={refetch}></TaskCard>)}
-                    </div>
+                <div ref={dropCompleted}>
+                    <Column tasks={completedTasks} title={"Done"} setTasks={setCompletedTasks} priority={"complete"} refetch={refetch} />
                 </div>
+
             </div>
         </div>
     );

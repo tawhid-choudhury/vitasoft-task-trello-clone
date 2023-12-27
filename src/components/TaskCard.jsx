@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import axiosInstance from '../api';
-import { MdDelete } from "react-icons/md";
+import { MdDelete, MdDone } from "react-icons/md";
 import { FaPencil } from "react-icons/fa6";
 import Swal from 'sweetalert2';
 import { useState } from 'react';
@@ -70,12 +70,50 @@ const TaskCard = ({ task, refetch }) => {
         if (res.status === 200) {
             refetch();
             console.log("success");
+            setShowEdit(false)
+        }
+    };
+
+    const handleMarkComplete = async () => {
+        const currentDate = new Date();
+        const isoString = currentDate.toISOString();
+        let updatedTask = {};
+        if (!task.completed) {
+            updatedTask = {
+                task: task.task,
+                assigned_to: task.assigned_to,
+                assignee: task.assignee,
+                priority: 'complete',
+                due_date: task.due_date,
+                completed: true,
+                completed_at: isoString,
+                created_at: task.created_at,
+            };
+        } else {
+            updatedTask = {
+                task: task.task,
+                assigned_to: task.assigned_to,
+                assignee: task.assignee,
+                priority: 'complete',
+                due_date: task.due_date,
+                completed: true,
+                completed_at: task.completed_at,
+                created_at: task.created_at,
+            };
+        }
+        console.log(updatedTask);
+        const res = await axiosInstance.patch(`/tasks/${task.id}/`, updatedTask)
+        console.log(res);
+        if (res.status === 200) {
+            refetch();
+            console.log("success");
+            setShowEdit(false)
         }
     };
 
 
     const formatDate = (isoDateString) => {
-        const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'short' };
+        const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' };
         return new Date(isoDateString).toLocaleString('en-US', options);
     };
 
@@ -83,11 +121,12 @@ const TaskCard = ({ task, refetch }) => {
     return (
         <div ref={drag} className={`bg-white m-6 p-2 py-4 rounded-md ${isDragging ? "border-2" : "border-0"}`}>
             <div className='mt-[-12px] flex justify-end'>
+                {task?.priority === 'complete' && <p className='bg-blue-500 w-[80px] text-center text-[10px] rounded-lg p-1 text-white' >Complete</p>}
                 {task?.priority === 'high' && <p className='bg-red-500 w-[80px] text-center text-[10px] rounded-lg p-1 text-white' >High priority</p>}
                 {task?.priority === 'moderate' && <p className='bg-[#FFAA33] w-[80px] text-center text-[10px] rounded-lg p-1 text-white' >Medium priority</p>}
                 {task?.priority === 'medium' && <p className='bg-[#FFAA33] w-[80px] text-center text-[10px] rounded-lg p-1 text-white' >Medium priority</p>}
                 {task?.priority === 'low' && <p className='bg-[#097969] w-[80px] text-center text-[10px] rounded-lg p-1 text-white' >Low priority</p>}
-                {!['high', 'medium', 'low'].includes(task?.priority) && <p className='bg-gray-600 w-[80px] text-center text-[10px] rounded-lg p-1 text-white' >Backlog</p>}
+                {!['high', 'medium', 'low', "complete"].includes(task?.priority) && <p className='bg-gray-600 w-[80px] text-center text-[10px] rounded-lg p-1 text-white' >Backlog</p>}
             </div>
             <div className='flex justify-between items-center pb-5'>
                 <div>
@@ -98,14 +137,19 @@ const TaskCard = ({ task, refetch }) => {
             </div>
             <p className='text-gray-700 text-xs'>Assigned to <span className='font-bold'>{task.assigned_to}</span> by <span className='font-bold'>{task.assignee}</span></p>
             <p className='text-gray-700 text-xs'> Due Date <span className='font-bold'>{formatDate(task.due_date)}</span></p>
-            {task.completed && <p className='bg-[#097969] w-fit px-1 text-xs rounded-md py-1 mt-4 text-white'>Completed at: {task.completed_at}</p>}
+            {task.completed && <p className='bg-[#097969] w-full text-center px-1 text-xs rounded-md py-1 mt-4 text-white'>Completed at: {formatDate(task.completed_at)}</p>}
             <div className='flex justify-center pt-5'>
                 <button onClick={handleDelete} className="btn btn-xs  btn-outline py-1 text-sm text-red-500 btn-circle mr-2">
                     <MdDelete />
                 </button>
-                <button onClick={() => setShowEdit(!showEdit)} className="btn btn-xs btn-outline py-1 text-sm text-blue-500 btn-circle">
+                <button onClick={() => setShowEdit(!showEdit)} className="btn btn-xs btn-outline py-1 text-sm text-blue-500 btn-circle mr-2">
                     <FaPencil />
                 </button>
+                {task.priority !== "complete" &&
+                    <button onClick={handleMarkComplete} className="btn btn-xs btn-outline py-1 text-sm text-green-500 btn-circle">
+                        <MdDone />
+                    </button>
+                }
             </div>
             <div className={`relative bg-base-300 p-2 rounded-md mt-4 ${!showEdit && "hidden"}`}>
                 <button onClick={() => setShowEdit(!showEdit)} className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>

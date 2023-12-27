@@ -36,17 +36,18 @@ const Column = ({ title, tasks, priority, refetch }) => {
         }
     };
     return (
-        <div className="bg-[#082F49] mt-8 mx-4 rounded-lg min-h-[720px]">
+        <div className="bg-[#082F49] mt-8 mx-4 rounded-lg min-h-[720px] pb-2 w-[314px]">
             <h1 className="text-white text-2xl pl-6 pt-4">{title} ({tasks.length})</h1>
             <div>
                 {tasks?.map((task) => <TaskCard key={task.id} task={task} refetch={refetch}></TaskCard>)}
             </div>
-            <div onClick={() => document.getElementById(`my_modal_${title}`).showModal()} className='bg-white m-6 p-2 py-4 rounded-md hover:bg-base-200 hover:cursor-pointer'>
-                <div className='text-xl flex justify-between items-center '>
-                    <div>Create a new Task</div>
-                    <div className='text-3xl font-bold pr-2'>+</div>
-                </div>
-            </div>
+            {priority !== "complete" &&
+                <div onClick={() => document.getElementById(`my_modal_${title}`).showModal()} className='bg-white m-6 p-2 py-4 rounded-md hover:bg-base-200 hover:cursor-pointer'>
+                    <div className='text-xl flex justify-between items-center '>
+                        <div>Create a new Task</div>
+                        <div className='text-3xl font-bold pr-2'>+</div>
+                    </div>
+                </div>}
             <dialog id={`my_modal_${title}`} className="modal modal-bottom sm:modal-middle">
                 <div className="modal-box">
                     <form method="dialog">
