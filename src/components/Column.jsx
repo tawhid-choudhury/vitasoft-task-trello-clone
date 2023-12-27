@@ -1,31 +1,33 @@
 import PropTypes from 'prop-types';
 import TaskCard from './TaskCard';
+import axiosInstance from '../api';
 
-const Column = ({ title, tasks, setTasks, priority }) => {
-    const handleAddNew = (e) => {
+const Column = ({ title, tasks, priority, refetch }) => {
+    const handleAddNew = async (e) => {
         e.preventDefault();
 
-        // Extract values from form fields
         const taskName = e.target.elements.task.value;
         const assignedTo = e.target.elements.assigned_to.value;
         const assignee = e.target.elements.assignee.value;
         const dueDate = e.target.elements.due_date.value;
 
-        // Create a new task object
         const newTask = {
-            id: tasks.length + 1, // You might want to use a better way to generate IDs
             task: taskName,
             assigned_to: assignedTo,
             assignee: assignee,
             priority: priority,
             due_date: dueDate,
-            completed: false, // Set completed to false initially
-            completed_at: null, // Set completed_at to null initially
-            created_at: new Date().toISOString(), // Set the creation date
+            completed: false,
+            completed_at: null,
+            created_at: new Date().toISOString(),
         };
 
-        // Update the tasks array
-        setTasks((prevTasks) => [...prevTasks, newTask]);
+        const res = await axiosInstance.post('/tasks/', newTask)
+        console.log(res);
+        if (res.status === 201) {
+            refetch();
+            console.log("success");
+        }
 
         // Close the modal
         const modal = document.getElementById(`my_modal_${title}`);
@@ -37,10 +39,10 @@ const Column = ({ title, tasks, setTasks, priority }) => {
         <div className="bg-[#082F49] mt-8 mx-4 rounded-lg min-h-[720px]">
             <h1 className="text-white text-2xl pl-6 pt-4">{title} ({tasks.length})</h1>
             <div>
-                {tasks?.map((task) => <TaskCard key={task.id} task={task}></TaskCard>)}
+                {tasks?.map((task) => <TaskCard key={task.id} task={task} refetch={refetch}></TaskCard>)}
             </div>
             <div onClick={() => document.getElementById(`my_modal_${title}`).showModal()} className='bg-white m-6 p-2 py-4 rounded-md hover:bg-base-200 hover:cursor-pointer'>
-                <div className='text-2xl flex justify-between items-center '>
+                <div className='text-xl flex justify-between items-center '>
                     <div>Create a new Task</div>
                     <div className='text-3xl font-bold pr-2'>+</div>
                 </div>
@@ -94,8 +96,9 @@ const Column = ({ title, tasks, setTasks, priority }) => {
 Column.propTypes = {
     title: PropTypes.string,
     priority: PropTypes.string,
-    tasks: PropTypes.object,
-    setTasks: PropTypes.func
+    tasks: PropTypes.array,
+    setTasks: PropTypes.func,
+    refetch: PropTypes.func,
 };
 
 export default Column;
