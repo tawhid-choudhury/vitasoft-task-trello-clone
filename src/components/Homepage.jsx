@@ -61,9 +61,41 @@ const Homepage = () => {
         }
     };
     const droppedToCompleted = async (id) => {
-        const res = await axiosInstance.patch(`/tasks/${id}/`, { priority: 'complete' });
+        const { data: task } = await axiosInstance.get(`/tasks/${id}/`);
+        console.log(task);
+
+        const currentDate = new Date();
+        const isoString = currentDate.toISOString();
+        let updatedTask = {};
+        if (!task.completed) {
+            updatedTask = {
+                task: task.task,
+                assigned_to: task.assigned_to,
+                assignee: task.assignee,
+                priority: 'complete',
+                due_date: task.due_date,
+                completed: true,
+                completed_at: isoString,
+                created_at: task.created_at,
+            };
+        } else {
+            updatedTask = {
+                task: task.task,
+                assigned_to: task.assigned_to,
+                assignee: task.assignee,
+                priority: 'complete',
+                due_date: task.due_date,
+                completed: true,
+                completed_at: task.completed_at,
+                created_at: task.created_at,
+            };
+        }
+        console.log(updatedTask);
+        const res = await axiosInstance.patch(`/tasks/${task.id}/`, updatedTask)
+        console.log(res);
         if (res.status === 200) {
             refetch();
+            console.log("success");
         }
     };
 

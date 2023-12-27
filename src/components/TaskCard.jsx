@@ -113,13 +113,13 @@ const TaskCard = ({ task, refetch }) => {
 
 
     const formatDate = (isoDateString) => {
-        const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' };
-        return new Date(isoDateString).toLocaleString('en-US', options);
+        const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
+        return new Date(isoDateString).toLocaleString('en-GB', options);
     };
 
 
     return (
-        <div ref={drag} className={`bg-white m-6 p-2 py-4 rounded-md ${isDragging ? "border-2" : "border-0"}`}>
+        <div ref={drag} className={`bg-white m-6 p-2 py-4 rounded-md ${isDragging ? "border-2 cursor-grabbing" : "border-0 cursor-grab"}`}>
             <div className='mt-[-12px] flex justify-end'>
                 {task?.priority === 'complete' && <p className='bg-blue-500 w-[80px] text-center text-[10px] rounded-lg p-1 text-white' >Complete</p>}
                 {task?.priority === 'high' && <p className='bg-red-500 w-[80px] text-center text-[10px] rounded-lg p-1 text-white' >High priority</p>}
@@ -175,9 +175,15 @@ const TaskCard = ({ task, refetch }) => {
                             <div className="label">
                                 <span className="label-text">Phase/Priority</span>
                             </div>
-                            <input defaultValue={task.priority} type="text" placeholder="Type here" name='priority' className="input input-sm input-bordered w-full  mb-4" />
+                            {/* <input defaultValue={task.priority} type="text" placeholder="Type here" name='priority' className="input input-sm input-bordered w-full  mb-4" /> */}
+                            <select defaultValue={task.priority} name="priority" className="select select-sm select-bordered w-full mb-4" >
+                                <option value="backlog">Backlog</option>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="complete">Complete</option>
+                            </select>
                         </label>
-
                         <input type='submit' className="btn btn-sm bg-[#082F49] text-white" value={"Save"} />
                     </div>
                 </form>

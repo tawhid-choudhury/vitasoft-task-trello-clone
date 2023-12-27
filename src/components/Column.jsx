@@ -37,7 +37,10 @@ const Column = ({ title, tasks, priority, refetch }) => {
     };
     return (
         <div className="bg-[#082F49] mt-8 mx-4 rounded-lg min-h-[720px] pb-2 w-[314px]">
-            <h1 className="text-white text-2xl pl-6 pt-4">{title} ({tasks.length})</h1>
+            <div className='flex text-white justify-between items-center'>
+                <h1 className=" text-xl pl-6 pt-4">{title} ({tasks.length})</h1>
+                <button className='text-3xl pt-3 pr-5' onClick={() => document.getElementById(`my_modal_${title}`).showModal()}>+</button>
+            </div>
             <div>
                 {tasks?.map((task) => <TaskCard key={task.id} task={task} refetch={refetch}></TaskCard>)}
             </div>
@@ -54,7 +57,7 @@ const Column = ({ title, tasks, priority, refetch }) => {
                         {/* if there is a button in form, it will close the modal */}
                         <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
                     </form>
-                    <h3 className="font-bold text-lg">Add a new low priority task</h3>
+                    <h3 className="font-bold text-lg">Add a new {priority} priority task</h3>
                     <form onSubmit={handleAddNew}>
                         <div className='flex flex-col'>
                             <label className="form-control w-full ">
