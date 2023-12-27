@@ -9,7 +9,7 @@ const TaskCard = ({ task }) => {
 
 
     return (
-        <div className='bg-white m-6 p-2 rounded-md'>
+        <div className='bg-white m-6 p-2 py-4 rounded-md'>
             <div className='flex justify-between items-center pb-5'>
                 <div>
                     <h1 className='text-2xl'>{task.task}</h1>
